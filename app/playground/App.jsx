@@ -1,4 +1,4 @@
-import React from "../core/react.js";
+import React from "my-react";
 
 const App = (
   <div id="app">
