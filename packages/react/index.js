@@ -6,19 +6,23 @@ export default {
 function createTextNode(text) {
   return {
     type: "TEXT_NODE",
-    nodeValue: text
+    props: {
+      nodeValue: text
+    }
   }
 }
 
 function createElement(type, props, ...children) {
   return {
     type,
-    props,
-    children: children.map(child => {
-      return typeof child === "string"
-        ? createTextNode(child)
-        : child
-    })
+    props: {
+      ...props,
+      children: children.map(child => {
+        return typeof child === "string"
+          ? createTextNode(child)
+          : child
+      })
+    },
   }
 }
 

@@ -1,21 +1,22 @@
 function render(el, container) {
-  if (el.type === "TEXT_NODE") {
-    const textNode = document.createTextNode(el.nodeValue);
-    container.appendChild(textNode);
-  } else {
-    const dom = document.createElement(el.type);
-    if (el.props) {
-      Object.keys(el.props).forEach(key => {
-        dom.setAttribute(key, el.props[key]);
-      })
-    }
-    if (el.children) {
-      el.children.forEach(child => {
-        render(child, dom);
-      })
-    }
-    container.appendChild(dom);
+  const dom = el.type === "TEXT_NODE"
+    ? document.createTextNode("")
+    : document.createElement(el.type);
+
+  if (el.props) {
+    Object.keys(el.props).forEach(key => {
+      if (key !== "children")
+        dom[key] = el.props[key];
+    })
   }
+
+  const children = el.props.children;
+  if (children) {
+    children.forEach(child => {
+      render(child, dom);
+    })
+  }
+  container.appendChild(dom);
 }
 
 const ReactDom = {
