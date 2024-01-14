@@ -21,26 +21,82 @@ function createElement(type, props, ...children) {
   }
 }
 
-function render(el, container) {
-  const dom = el.type === "TEXT_NODE"
+function createDOM(type) {
+  const dom = type === "TEXT_NODE"
     ? document.createTextNode("")
-    : document.createElement(el.type);
+    : document.createElement(type);
 
-  if (el.props) {
-    Object.keys(el.props).forEach(key => {
-      if (key !== "children")
-        dom[key] = el.props[key];
-    })
-  }
-
-  const children = el.props.children;
-  if (children) {
-    children.forEach(child => {
-      render(child, dom);
-    })
-  }
-  container.appendChild(dom);
+  return dom;
 }
+
+function updateProps(props, dom) {
+  if (props) {
+    Object.keys(props).forEach(key => {
+      if (key !== "children")
+        dom[key] = props[key];
+    })
+  }
+}
+
+function maintainFiberLinkedList(fiber) {
+  const children = fiber.props.children;
+  let prevFiber = null;
+  children?.forEach((child, index) => {
+    const newFiber = {
+      type: child.type,
+      props: child.props,
+      parent: fiber,
+      sibling: null,
+      child: null,
+      dom: null
+    }
+    if (index === 0) {
+      fiber.child = newFiber;
+    } else {
+      if (prevFiber) prevFiber.sibling = newFiber;
+    }
+    prevFiber = newFiber;
+  });
+}
+
+function render(el, container) {
+  nextUnitOfWork = {
+    dom: container,
+    props: {
+      children: [el]
+    }
+  }
+}
+
+function performUnitOfWork(fiber) {
+  // Create DOM
+  if (!fiber.dom) {
+    const dom = createDOM(fiber.type);
+    fiber.dom = dom;
+    fiber.parent.dom.appendChild(dom);
+
+    updateProps(fiber.props, dom);
+  }
+
+  // Maintain linked list
+  maintainFiberLinkedList(fiber);
+
+  if (fiber.child) return fiber.child;
+  else if (fiber.sibling) return fiber.sibling;
+  else return fiber.parent.sibling;
+}
+
+let nextUnitOfWork = null;
+function workLoop(deadline) {
+  let shouldYield = false;
+  while (!shouldYield && nextUnitOfWork) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+
+    shouldYield = deadline.timeRemaining() < 1;
+  }
+}
+
+requestIdleCallback(workLoop)
 
 const React = {
   createElement,
