@@ -1,32 +1,13 @@
-function render(el, container) {
-  const dom = el.type === "TEXT_NODE"
-    ? document.createTextNode("")
-    : document.createElement(el.type);
+import React from "my-react";
 
-  if (el.props) {
-    Object.keys(el.props).forEach(key => {
-      if (key !== "children")
-        dom[key] = el.props[key];
-    })
-  }
-
-  const children = el.props.children;
-  if (children) {
-    children.forEach(child => {
-      render(child, dom);
-    })
-  }
-  container.appendChild(dom);
-}
-
-const ReactDom = {
+const ReactDOM = {
   createRoot: (container) => {
     return {
       render: (app) => {
-        return render(app, container)
+        return React.render(app, container)
       }
     }
   }
 }
 
-export default ReactDom;
+export default ReactDOM;

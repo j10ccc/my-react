@@ -9,20 +9,25 @@ importers:
   .: {}
 
   app/playground:
-    devDependencies:
+    dependencies:
       my-react:
         specifier: workspace:*
         version: link:../../packages/react
       my-react-dom:
         specifier: workspace:*
         version: link:../../packages/react-dom
+    devDependencies:
       vite:
         specifier: ^5.0.8
         version: 5.0.11
 
   packages/react: {}
 
-  packages/react-dom: {}
+  packages/react-dom:
+    dependencies:
+      my-react:
+        specifier: workspace:*
+        version: link:../react
 
 packages:
 
