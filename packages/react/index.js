@@ -38,20 +38,19 @@ function updateProps(props, dom) {
   }
 }
 
-function maintainFiberLinkedList(fiber) {
-  const children = fiber.props.children;
+function reconcileChildren(workInProgress, children) {
   let prevFiber = null;
   children?.forEach((child, index) => {
     const newFiber = {
       type: child.type,
       props: child.props,
-      parent: fiber,
+      parent: workInProgress,
       sibling: null,
       child: null,
       dom: null
     }
     if (index === 0) {
-      fiber.child = newFiber;
+      workInProgress.child = newFiber;
     } else {
       if (prevFiber) prevFiber.sibling = newFiber;
     }
@@ -78,8 +77,7 @@ function performUnitOfWork(fiber) {
     updateProps(fiber.props, dom);
   }
 
-  // Maintain linked list
-  maintainFiberLinkedList(fiber);
+  reconcileChildren(fiber, fiber.props.children);
 
   if (fiber.child) return fiber.child;
   else if (fiber.sibling) return fiber.sibling;
