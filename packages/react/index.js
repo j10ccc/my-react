@@ -66,6 +66,7 @@ function render(el, container) {
       children: [el]
     }
   }
+  root = nextUnitOfWork;
 }
 
 function performUnitOfWork(fiber) {
@@ -73,7 +74,6 @@ function performUnitOfWork(fiber) {
   if (!fiber.dom) {
     const dom = createDOM(fiber.type);
     fiber.dom = dom;
-    fiber.parent.dom.appendChild(dom);
 
     updateProps(fiber.props, dom);
   }
@@ -92,8 +92,25 @@ function workLoop(deadline) {
   while (!shouldYield && nextUnitOfWork) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
 
+    if (!nextUnitOfWork && root) {
+      commitRoot(root);
+    }
     shouldYield = deadline.timeRemaining() < 1;
   }
+}
+
+let root = null;
+function commitRoot(root) {
+  commitWork(root.child);
+  root = null;
+}
+
+function commitWork(fiber) {
+  if (!fiber) return;
+  fiber.parent.dom.appendChild(fiber.dom);
+
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
 }
 
 requestIdleCallback(workLoop)
