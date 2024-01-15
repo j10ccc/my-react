@@ -67,22 +67,32 @@ function render(el, container) {
   root = nextUnitOfWork;
 }
 
-function performUnitOfWork(fiber) {
-  const isFunctionComponent = typeof fiber.type === "function";
+function updateFunctionComponent(fiber) {
+  reconcileChildren(fiber, [fiber.type(fiber.props)]);
+}
 
-  // Create DOM
-  if (!fiber.dom && !isFunctionComponent) {
+function updateHostComponent(fiber) {
+  if (!fiber.dom) {
     const dom = createDOM(fiber.type);
     fiber.dom = dom;
 
     updateProps(fiber.props, dom);
   }
 
-  reconcileChildren(
-    fiber,
-    isFunctionComponent ? [fiber.type(fiber.props)] : fiber.props?.children
-  );
+  reconcileChildren(fiber, fiber.props?.children);
+}
 
+function performUnitOfWork(fiber) {
+  const isFunctionComponent = typeof fiber.type === "function";
+
+  // Create DOM
+  if (isFunctionComponent) {
+    updateFunctionComponent(fiber);
+  } else {
+    updateHostComponent(fiber);
+  }
+
+  // Return next unit of work
   if (fiber.child) return fiber.child;
   else {
     let nextFiber = fiber;
