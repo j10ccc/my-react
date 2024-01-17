@@ -2,7 +2,10 @@ import React from "my-react";
 
 function Counter({ num, color }) {
   return (
-    <div style={`color: ${color}`}>Counter: {num}</div>
+    <>
+      <div style={`color: ${color}`}>Counter: {num}</div>
+      <button onClick={() => console.log("add")}>add</button>
+    </>
   )
 }
 
