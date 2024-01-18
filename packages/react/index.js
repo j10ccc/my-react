@@ -115,15 +115,18 @@ function workLoop(deadline) {
   while (!shouldYield && nextUnitOfWork) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
 
-    if (!nextUnitOfWork && root) {
-      commitRoot(root);
-    }
     shouldYield = deadline.timeRemaining() < 1;
   }
+
+  if (!nextUnitOfWork && root) {
+    commitRoot();
+  }
+
+  requestIdleCallback(workLoop);
 }
 
 let root = null;
-function commitRoot(root) {
+function commitRoot() {
   commitWork(root.child);
   root = null;
 }
@@ -143,7 +146,7 @@ function commitWork(fiber) {
   commitWork(fiber.sibling);
 }
 
-requestIdleCallback(workLoop)
+requestIdleCallback(workLoop);
 
 const React = {
   createElement,
