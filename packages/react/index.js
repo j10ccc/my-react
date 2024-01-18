@@ -97,13 +97,13 @@ function reconcileChildren(workInProgress, children) {
 }
 
 function render(el, container) {
-  nextUnitOfWork = {
+  wipRoot = {
     dom: container,
     props: {
       children: [el]
     }
   }
-  root = nextUnitOfWork;
+  nextUnitOfWork = wipRoot;
 }
 
 function updateFunctionComponent(fiber) {
@@ -151,19 +151,19 @@ function workLoop(deadline) {
     shouldYield = deadline.timeRemaining() < 1;
   }
 
-  if (!nextUnitOfWork && root) {
+  if (!nextUnitOfWork && wipRoot) {
     commitRoot();
   }
 
   requestIdleCallback(workLoop);
 }
 
-let root = null;
+let wipRoot = null;
 let currentRoot = null;
 function commitRoot() {
-  commitWork(root.child);
-  currentRoot = root;
-  root = null;
+  commitWork(wipRoot.child);
+  currentRoot = wipRoot;
+  wipRoot = null;
 }
 
 function commitWork(fiber) {
@@ -188,12 +188,12 @@ function commitWork(fiber) {
 requestIdleCallback(workLoop);
 
 function update() {
-  nextUnitOfWork = {
+  wipRoot = {
     dom: currentRoot.dom,
     props: currentRoot.props,
     alternate: currentRoot
   }
-  root = nextUnitOfWork;
+  nextUnitOfWork = wipRoot;
 }
 
 const React = {
