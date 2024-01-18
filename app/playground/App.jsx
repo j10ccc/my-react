@@ -1,10 +1,16 @@
 import React from "my-react";
 
+let count = 10;
 function Counter({ num, color }) {
+  function handleClick() {
+    count++;
+    React.update();
+  }
+
   return (
     <>
-      <div style={`color: ${color}`}>Counter: {num}</div>
-      <button onClick={() => console.log("add")}>add</button>
+      <div style={`color: ${color}`}>Counter: {count}</div>
+      <button onClick={handleClick}>add</button>
     </>
   )
 }
